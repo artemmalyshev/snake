@@ -1,3 +1,11 @@
+//TODO create IIFE func with initialization (addEventListeners + initialization values for variables)
+let box = 32; //TODO make const, rename to cell all const variable in the beginning of the file
+let food;
+
+(function () {
+    createFood();
+})();
+
 let canvas = document.querySelector("#game");
 let ctx = canvas.getContext("2d");
 
@@ -16,20 +24,21 @@ gameButton.addEventListener("click", () => {
         gameButton.children[0].style.display = "none";
         gameButton.children[1].style.display = "initial"
     } else {
-        game = setInterval(drawGame, 200)
+        game = setInterval(drawGame, 500 - score * 10)
         gameButton.children[0].style.display = "initial";
         gameButton.children[1].style.display = "none"
     }
 })
 
-let box = 32;
 
 let score = 0;
 
-let food = {
-    x: Math.floor(Math.random() * 17 + 1) * box,
-    y: Math.floor(Math.random() * 15 + 1) * box
-};
+function createFood() {
+    food = {
+        x: Math.floor(Math.random() * 17 + 1) * box, //TODO create variable for unknown numbers
+        y: Math.floor(Math.random() * 15 + 1) * box
+    }
+}
 
 let snake = [];
 snake[0] = {
@@ -42,6 +51,7 @@ document.addEventListener("keydown", direction);
 let dir = "left";
 
 function direction(event) {
+    console.log("user clicled arrow");
     if (event.keyCode === 37 && dir != "right") {
         dir = "left";
     } else if (event.keyCode === 38 && dir != "down") {
@@ -53,17 +63,22 @@ function direction(event) {
     }
 }
 
+//TODO make prettier, more fancy
+function gameOver() {
+    clearInterval(game);
+    if (confirm("Game over. Do you want to try again?"))
+        location.reload();
+}
+
 function drawGame() {
+    console.log("direction", dir);
     ctx.drawImage(playingField, 0, 0);
     ctx.drawImage(foodImage, food.x, food.y);
 
-    for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = "green";
-        ctx.fillRect(snake[i].x, snake[i].y, box, box);
-    }
-
+    //TODO style does not change every draw game func (extract above into initialize func)
     ctx.fillStyle = "blue";
     ctx.font = "40px Arial";
+
     ctx.fillText(score, box, box);
 
     let snakeX = snake[0].x;
@@ -71,10 +86,7 @@ function drawGame() {
 
     if (snakeX === food.x && snakeY === food.y) {
         score++;
-        food = {
-            x: Math.floor(Math.random() * 17 + 1) * box,
-            y: Math.floor(Math.random() * 15 + 1) * box
-        };
+        createFood();
     } else {
         snake.pop();
     }
@@ -82,15 +94,15 @@ function drawGame() {
     function eatTail(head, arr) {
         for (let i = 0; i < arr.length; i++) {
             if (head.x == arr[i].x && head.y == arr[i].y) {
-                clearInterval(game);
-                location.reload()
+                gameOver();
             }
         }
     }
 
-    if (snakeX * 2 < box || snakeX > box * 17 || snakeY < box || snakeY > box * 15) {
-        clearInterval(game);
-        location.reload()
+    console.log("snakeX: ", snakeX, "snakeY: ", snakeY);
+    if (snakeX < box || snakeX > box * 17 || snakeY < box || snakeY > box * 15) {
+        console.log("GAME OVER snakeX: ", snakeX, "snakeY: ", snakeY);
+        gameOver();
     }
 
     if (dir == "left") {
@@ -102,6 +114,7 @@ function drawGame() {
     } else if (dir == "down") {
         snakeY += box;
     }
+    console.log("AFTER MOVE: snakeX: ", snakeX, "snakeY: ", snakeY);
 
     let newSnake = {
         x: snakeX,
@@ -111,6 +124,11 @@ function drawGame() {
     eatTail(newSnake, snake);
 
     snake.unshift(newSnake);
+
+    for (let i = 0; i < snake.length; i++) {
+        ctx.fillStyle = "green";
+        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+    }
 }
 
-let game = setInterval(drawGame, 200);
+let game = setInterval(drawGame, 500 - score * 10);

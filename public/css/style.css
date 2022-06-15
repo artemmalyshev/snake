@@ -1,12 +1,14 @@
-canvas {
-    display: block;
+.canvas-container {
+    height: 600px;
+    width: 600px;
+    position: relative;
     margin: 0 auto;
 }
 
 .gameButton {
-    position: fixed;
-    right: 135px;
-    top: 7px;
+    position: absolute;
+    right: -6px;
+    top: 0px;
     background: transparent;
     border: none;
     cursor: pointer;
